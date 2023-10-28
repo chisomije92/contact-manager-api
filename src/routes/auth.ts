@@ -1,5 +1,5 @@
 import express from "express";
-import { login, register } from "../controllers/auth.js";
+import { login, logout, refreshToken, register } from "../controllers/auth.js";
 import { body } from "express-validator";
 
 
@@ -24,6 +24,16 @@ router.post(
       body("password").isLength({ min: 5 }),
     ],
     login
+  );
+
+  router.post(
+    "/refresh-token",
+    refreshToken
+  );
+
+  router.post(
+    "/logout",
+    logout
   );
 
   export default router;

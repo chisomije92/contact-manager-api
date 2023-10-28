@@ -3,14 +3,21 @@ import dotenv from 'dotenv';
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt"
 import { validationResult } from 'express-validator/src/validation-result.js';
-
 import jsonwebtoken from "jsonwebtoken"
 import { pool } from '../db.js';
 import { generateAccessToken, generateRefreshToken } from '../utils/handle-tokens.js';
 
-const { sign } = jsonwebtoken
+const { sign, verify } = jsonwebtoken
+
 
 dotenv.config()
+const {  REFRESH_SECRET } = process.env
+let  refresh_secret: string;
+if ( REFRESH_SECRET) {
+    refresh_secret = REFRESH_SECRET;
+} else {
+  throw new Error("jwt secret is not set");
+}
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
     const validationErrors = validationResult(req)
@@ -86,4 +93,27 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     }
     next(err)
   }
+}
+
+export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
+    const refreshToken = req.body.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({ message: 'Refresh token is required' });
+    }
+  
+    verify(refreshToken, refresh_secret, (err: any, user: any) => {
+      if (err) {
+        return res.status(403).json({ message: 'Invalid refresh token' });
+      }
+  
+      // Refresh the access token
+      const accessToken = generateAccessToken(user.userId);
+      res.json({ accessToken });
+    });
+}
+
+export const logout = async (req: Request, res: Response, next: NextFunction) => {
+   req.header('Authorization')?.replace('Bearer ', '');
+    res.json({ message: 'Logged out successfully' });
 }

@@ -14,8 +14,16 @@ import { validationResult } from 'express-validator/src/validation-result.js';
 import jsonwebtoken from "jsonwebtoken";
 import { pool } from '../db.js';
 import { generateAccessToken, generateRefreshToken } from '../utils/handle-tokens.js';
-const { sign } = jsonwebtoken;
+const { sign, verify } = jsonwebtoken;
 dotenv.config();
+const { REFRESH_SECRET } = process.env;
+let refresh_secret;
+if (REFRESH_SECRET) {
+    refresh_secret = REFRESH_SECRET;
+}
+else {
+    throw new Error("jwt secret is not set");
+}
 export const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const validationErrors = validationResult(req);
     if (!validationErrors.isEmpty()) {
@@ -84,5 +92,24 @@ export const login = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         }
         next(err);
     }
+});
+export const refreshToken = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const refreshToken = req.body.refreshToken;
+    if (!refreshToken) {
+        return res.status(401).json({ message: 'Refresh token is required' });
+    }
+    verify(refreshToken, refresh_secret, (err, user) => {
+        if (err) {
+            return res.status(403).json({ message: 'Invalid refresh token' });
+        }
+        // Refresh the access token
+        const accessToken = generateAccessToken(user.userId);
+        res.json({ accessToken });
+    });
+});
+export const logout = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    (_a = req.header('Authorization')) === null || _a === void 0 ? void 0 : _a.replace('Bearer ', '');
+    res.json({ message: 'Logged out successfully' });
 });
 //# sourceMappingURL=auth.js.map
