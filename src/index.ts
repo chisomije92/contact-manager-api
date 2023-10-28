@@ -23,11 +23,27 @@ app.use(helmet({
   }))
   app.use(morgan("common"))
 
+
+const blacklistedTokens = new Set();
+
+// Middleware to check if a token is blacklisted
+app.use((req, res, next) => {
+  const token = req.header('Authorization')!.replace('Bearer ', '');
+
+  if (blacklistedTokens.has(token)) {
+    return res.status(401).json({ message: 'Token blacklisted' });
+  }
+
+  next();
+});
+
 app.get('/', (req: Request, res: Response) => {
   res.send('API is running');
 });
 
 app.use("/api/auth", authRoute)
+
+
 
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {

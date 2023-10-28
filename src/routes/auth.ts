@@ -1,5 +1,5 @@
 import express from "express";
-import { register } from "../controllers/auth.js";
+import { login, register } from "../controllers/auth.js";
 import { body } from "express-validator";
 
 
@@ -14,6 +14,16 @@ router.post(
     ],
     register
   
+  );
+
+
+  router.post(
+    "/login",
+    [
+      body("email").isEmail().normalizeEmail(),
+      body("password").isLength({ min: 5 }),
+    ],
+    login
   );
 
   export default router;

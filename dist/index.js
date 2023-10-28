@@ -16,6 +16,15 @@ app.use(helmet({
     crossOriginEmbedderPolicy: false,
 }));
 app.use(morgan("common"));
+const blacklistedTokens = new Set();
+// Middleware to check if a token is blacklisted
+app.use((req, res, next) => {
+    const token = req.header('Authorization').replace('Bearer ', '');
+    if (blacklistedTokens.has(token)) {
+        return res.status(401).json({ message: 'Token blacklisted' });
+    }
+    next();
+});
 app.get('/', (req, res) => {
     res.send('API is running');
 });

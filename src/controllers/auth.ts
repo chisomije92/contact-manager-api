@@ -21,11 +21,10 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 
     const { email, password, name } = req.body
     try {
-        const query = 'SELECT COUNT(*) FROM users WHERE name = $1';
-        const result = await pool.query(query, [name]);
+        const query = 'SELECT COUNT(*) FROM users WHERE email = $1';
+        const result = await pool.query(query, [email]);
 
         const userExists = result.rows[0].count > 0;
-        // res.json({ userExists });
         if (userExists) {
             const error = new CustomError("User exists already!", 409)
             throw error
@@ -52,4 +51,39 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
         }
         next(err)
     }
+}
+
+export const login = async (req: Request, res: Response, next: NextFunction) => {
+    const { email, password } = req.body
+  const validationErrors = validationResult(req)
+  if (!validationErrors.isEmpty()) {
+    const error = new CustomError("Validation failed, entered data is incorrect", 422, validationErrors.array());
+    return res.status(error.statusCode).json({ message: error.message, errors: error.errors })
+  }
+
+  try{
+    const query = 'SELECT * FROM users WHERE email = $1';
+    const user = await pool.query(query, [email]);
+
+    if (!user) {
+      // User not found, return an error
+      const error = new CustomError("User not found!", 404)
+      throw error
+    }
+    const validPassword = await bcrypt.compare(password, user.rows[0].password)
+    if (!validPassword) {
+      const error = new CustomError("Credentials are invalid!", 400);
+      throw error;
+
+    }
+    const accessToken = generateAccessToken(user.rows[0].id);
+    const refreshToken = generateRefreshToken(user.rows[0].id);
+    res.status(201).json({ accessToken, refreshToken });
+    
+  }catch (err: any) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err)
+  }
 }

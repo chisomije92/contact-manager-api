@@ -2,11 +2,11 @@ import jsonwebtoken from "jsonwebtoken";
 import dotenv from 'dotenv';
 const { sign } = jsonwebtoken;
 dotenv.config();
-const { ACCESS_TOKEN, REFRESH_TOKEN } = process.env;
+const { ACCESS_SECRET, REFRESH_SECRET } = process.env;
 let access_secret, refresh_secret;
-if (ACCESS_TOKEN && REFRESH_TOKEN) {
-    access_secret = ACCESS_TOKEN;
-    refresh_secret = REFRESH_TOKEN;
+if (ACCESS_SECRET && REFRESH_SECRET) {
+    access_secret = ACCESS_SECRET;
+    refresh_secret = REFRESH_SECRET;
 }
 else {
     throw new Error("jwt secret is not set");
