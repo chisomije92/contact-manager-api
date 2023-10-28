@@ -5,6 +5,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import authRoute from "./routes/auth.js"
+import contactRoute from "./routes/contacts.js"
 
 
 //For env File 
@@ -32,6 +33,7 @@ app.get('/', (req: Request, res: Response) => {
 
 app.use("/api/auth", authRoute)
 
+app.use("/api/contact", contactRoute)
 
 
 
