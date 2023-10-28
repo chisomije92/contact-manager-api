@@ -1,16 +1,7 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { CustomError } from './../utils/custom-error.js';
 import { validationResult } from 'express-validator/src/validation-result.js';
 import { pool } from '../db.js';
-export const createContact = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+export const createContact = async (req, res, next) => {
     const { firstName, lastName, phoneNumber } = req.body;
     const validationErrors = validationResult(req);
     if (!validationErrors.isEmpty()) {
@@ -19,7 +10,7 @@ export const createContact = (req, res, next) => __awaiter(void 0, void 0, void 
     }
     try {
         const findQuery = 'SELECT COUNT(*) FROM contacts WHERE phone_number = $1';
-        const result = yield pool.query(findQuery, [phoneNumber]);
+        const result = await pool.query(findQuery, [phoneNumber]);
         const contactExists = result.rows[0].count > 0;
         if (contactExists) {
             const error = new CustomError("Contact exists already!", 409);
@@ -27,7 +18,7 @@ export const createContact = (req, res, next) => __awaiter(void 0, void 0, void 
         }
         // Insert the contact into the database and return the created contact
         const insertQuery = 'INSERT INTO contacts (first_name, last_name, phone_number) VALUES ($1, $2, $3) RETURNING *';
-        const { rows } = yield pool.query(insertQuery, [firstName, lastName, phoneNumber]);
+        const { rows } = await pool.query(insertQuery, [firstName, lastName, phoneNumber]);
         res.status(201).json(rows[0]);
     }
     catch (err) {
@@ -36,8 +27,8 @@ export const createContact = (req, res, next) => __awaiter(void 0, void 0, void 
         }
         next(err);
     }
-});
-export const updateContact = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+};
+export const updateContact = async (req, res, next) => {
     const { firstName: updatedFirstName, lastName: updatedLastName, phoneNumber: updatedPhoneNumber } = req.body;
     const contactId = req.params.id;
     const validationErrors = validationResult(req);
@@ -48,10 +39,9 @@ export const updateContact = (req, res, next) => __awaiter(void 0, void 0, void 
     try {
         // search for contact 
         const findQuery = 'SELECT * FROM contacts WHERE id = $1';
-        const result = yield pool.query(findQuery, [contactId]);
+        const result = await pool.query(findQuery, [contactId]);
         if (result.rows.length === 0) {
-            const error = new CustomError("Contact not found", 404);
-            throw error;
+            res.status(404).json({ message: "Contact not found" });
         }
         // Merge the updated fields with the existing contact data
         const currentContact = result.rows[0];
@@ -62,13 +52,12 @@ export const updateContact = (req, res, next) => __awaiter(void 0, void 0, void 
         };
         // Update the contact in the database and return the updated contact
         const updateQuery = 'UPDATE contacts SET first_name = $1, last_name = $2, phone_number = $3 WHERE id = $4 RETURNING *';
-        const { rows } = yield pool.query(updateQuery, [updatedContact.updatedFirstName, updatedContact.updatedLastName, updatedContact.updatedPhoneNumber, contactId]);
+        const { rows } = await pool.query(updateQuery, [updatedContact.updatedFirstName, updatedContact.updatedLastName, updatedContact.updatedPhoneNumber, contactId]);
         if (rows.length === 0) {
-            const error = new CustomError("Contact not found", 404);
-            throw error;
+            res.status(404).json({ message: "Contact not found" });
         }
         else {
-            res.status(200).json(rows[0]);
+            res.status(200).json({ message: "Contact updated successfully!", contact: rows[0] });
         }
     }
     catch (err) {
@@ -77,20 +66,20 @@ export const updateContact = (req, res, next) => __awaiter(void 0, void 0, void 
         }
         next(err);
     }
-});
-export const deleteContact = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+};
+export const deleteContact = async (req, res, next) => {
     const contactId = req.params.id;
     try {
         // Get the current contact information from the database
         const selectQuery = 'SELECT * FROM contacts WHERE id = $1';
-        const { rows } = yield pool.query(selectQuery, [contactId]);
+        const { rows } = await pool.query(selectQuery, [contactId]);
         if (rows.length === 0) {
             const error = new CustomError("Contact not found", 404);
             throw error;
         }
         // Delete the contact from the database and return the deleted contact
         const deleteQuery = 'DELETE FROM contacts WHERE id = $1 RETURNING *';
-        const { rows: deletedRows } = yield pool.query(deleteQuery, [contactId]);
+        const { rows: deletedRows } = await pool.query(deleteQuery, [contactId]);
         res.status(200).json(deletedRows[0]);
     }
     catch (err) {
@@ -99,13 +88,13 @@ export const deleteContact = (req, res, next) => __awaiter(void 0, void 0, void 
         }
         next(err);
     }
-});
-export const getContact = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+};
+export const getContact = async (req, res, next) => {
     const contactId = req.params.id;
     try {
         // Query the database to retrieve the contact by ID
         const selectQuery = 'SELECT * FROM contacts WHERE id = $1';
-        const { rows } = yield pool.query(selectQuery, [contactId]);
+        const { rows } = await pool.query(selectQuery, [contactId]);
         if (rows.length === 0) {
             const error = new CustomError("Contact not found", 404);
             throw error;
@@ -118,12 +107,12 @@ export const getContact = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         }
         next(err);
     }
-});
-export const getContacts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+};
+export const getContacts = async (req, res, next) => {
     try {
         // Retrieve all contacts from the database
         const query = 'SELECT * FROM contacts';
-        const { rows } = yield pool.query(query);
+        const { rows } = await pool.query(query);
         res.status(200).json(rows);
     }
     catch (err) {
@@ -132,5 +121,5 @@ export const getContacts = (req, res, next) => __awaiter(void 0, void 0, void 0,
         }
         next(err);
     }
-});
+};
 //# sourceMappingURL=contacts.js.map

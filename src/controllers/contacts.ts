@@ -46,8 +46,7 @@ export const updateContact = async (req: Request, res: Response, next: NextFunct
         const result = await pool.query(findQuery, [contactId]);
 
         if (result.rows.length === 0) {
-            const error = new CustomError("Contact not found", 404)
-            throw error
+            res.status(404).json({ message: "Contact not found" })
         }
 
         // Merge the updated fields with the existing contact data
@@ -61,11 +60,10 @@ export const updateContact = async (req: Request, res: Response, next: NextFunct
         const updateQuery = 'UPDATE contacts SET first_name = $1, last_name = $2, phone_number = $3 WHERE id = $4 RETURNING *';
         const { rows } = await pool.query(updateQuery, [updatedContact.updatedFirstName, updatedContact.updatedLastName, updatedContact.updatedPhoneNumber, contactId]);
         if (rows.length === 0) {
-            const error = new CustomError("Contact not found", 404)
-            throw error
+            res.status(404).json({ message: "Contact not found" })
 
         } else {
-            res.status(200).json(rows[0]);
+            res.status(200).json({ message: "Contact updated successfully!", contact: rows[0] });
         }
     } catch (err: any) {
         if (!err.statusCode) {
