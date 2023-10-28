@@ -102,3 +102,38 @@ export const deleteContact = async (req: Request, res: Response, next: NextFunct
     }
 
 }
+export const getContact = async (req: Request, res: Response, next: NextFunction) => {
+    const contactId = req.params.id;
+    try {
+        // Query the database to retrieve the contact by ID
+        const selectQuery = 'SELECT * FROM contacts WHERE id = $1';
+        const { rows } = await pool.query(selectQuery, [contactId]);
+        if (rows.length === 0) {
+            const error = new CustomError("Contact not found", 404)
+            throw error
+        }
+        res.status(200).json(rows);
+    } catch (err: any) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err)
+    }
+}
+
+
+export const getContacts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // Retrieve all contacts from the database
+        const query = 'SELECT * FROM contacts';
+        const { rows } = await pool.query(query);
+
+        res.status(200).json(rows);
+    } catch (err: any) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err)
+    }
+}
+

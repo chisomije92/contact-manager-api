@@ -1,9 +1,11 @@
 import express from "express";
 import { body } from "express-validator";
-import { createContact, deleteContact, updateContact } from "../controllers/contacts.js";
+import { createContact, deleteContact, getContact, getContacts, updateContact } from "../controllers/contacts.js";
 import isAuth from "../middlewares/is-auth.js";
 const router = express.Router();
-router.post("", [
+router.get("/", isAuth, getContacts);
+router.get("/:id", isAuth, getContact);
+router.post("/", [
     body("firstName").trim().isLength({ min: 1 }),
     body("lastName").trim().isLength({ min: 1 }),
     body("phoneNumber").trim().isLength({ min: 1 }),
