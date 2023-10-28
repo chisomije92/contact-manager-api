@@ -4,6 +4,7 @@ import { createTables } from './db.js';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import authRoute from "./routes/auth.js"
 
 //For env File 
 dotenv.config();
@@ -25,6 +26,9 @@ app.use(helmet({
 app.get('/', (req: Request, res: Response) => {
   res.send('API is running');
 });
+
+app.use("/api/auth", authRoute)
+
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
     const status = error.statusCode || 500;
