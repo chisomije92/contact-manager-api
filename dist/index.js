@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import authRoute from "./routes/auth.js";
 import contactRoute from "./routes/contacts.js";
+import userRoute from "./routes/users.js";
 //For env File 
 dotenv.config();
 const app = express();
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 });
 app.use("/api/auth", authRoute);
 app.use("/api/contact", contactRoute);
+app.use("/api/user", userRoute);
 app.use((error, req, res, next) => {
     const status = error.statusCode || 500;
     const message = error.message;

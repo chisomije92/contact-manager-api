@@ -1,6 +1,5 @@
 import { CustomError } from './../utils/custom-error.js';
 import { Request, Response, NextFunction } from "express";
-import bcrypt from "bcrypt"
 import { validationResult } from 'express-validator/src/validation-result.js';
 import { pool } from '../db.js';
 
