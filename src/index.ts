@@ -34,7 +34,7 @@ app.get('/', (req: Request, res: Response) => {
 
 app.use("/api/auth", authRoute)
 
-app.use("/api/contact", contactRoute)
+app.use("/api/contacts", contactRoute)
 
 app.use("/api/user", userRoute)
 

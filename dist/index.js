@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
     res.send('API is running');
 });
 app.use("/api/auth", authRoute);
-app.use("/api/contact", contactRoute);
+app.use("/api/contacts", contactRoute);
 app.use("/api/user", userRoute);
 app.use((error, req, res, next) => {
     const status = error.statusCode || 500;
