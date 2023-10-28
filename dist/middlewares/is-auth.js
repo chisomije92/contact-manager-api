@@ -3,8 +3,8 @@ import dotenv from "dotenv";
 import { CustomError } from "../utils/custom-error.js";
 dotenv.config();
 let secret;
-if (process.env.JWT_SECRET) {
-    secret = process.env.JWT_SECRET;
+if (process.env.ACCESS_SECRET) {
+    secret = process.env.ACCESS_SECRET;
 }
 else {
     throw new Error("JWT_SECRET is not set");

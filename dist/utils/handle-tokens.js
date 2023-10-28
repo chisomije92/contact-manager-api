@@ -11,10 +11,10 @@ if (ACCESS_SECRET && REFRESH_SECRET) {
 else {
     throw new Error("jwt secret is not set");
 }
-export function generateAccessToken(id) {
-    return sign({ userId: id }, access_secret, { expiresIn: '15m' });
+export function generateAccessToken(id, email) {
+    return sign({ email, userId: id }, access_secret, { expiresIn: '15m' });
 }
-export const generateRefreshToken = (id) => {
-    return sign({ userId: id }, refresh_secret, { expiresIn: '3d' });
+export const generateRefreshToken = (id, email) => {
+    return sign({ email, userId: id }, refresh_secret, { expiresIn: '3d' });
 };
 //# sourceMappingURL=handle-tokens.js.map

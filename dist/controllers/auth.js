@@ -50,8 +50,8 @@ export const register = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
             };
             const insertQuery = 'INSERT INTO users (email, name, password) VALUES ($1, $2, $3) RETURNING id';
             const insertResult = yield pool.query(insertQuery, [newUser.email, newUser.name, newUser.password]);
-            const accessToken = generateAccessToken(insertResult.rows[0].id);
-            const refreshToken = generateRefreshToken(insertResult.rows[0].id);
+            const accessToken = generateAccessToken(insertResult.rows[0].id, insertResult.rows[0].email);
+            const refreshToken = generateRefreshToken(insertResult.rows[0].id, insertResult.rows[0].email);
             res.status(201).json({ accessToken, refreshToken });
         }
     }
@@ -82,8 +82,8 @@ export const login = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
             const error = new CustomError("Credentials are invalid!", 400);
             throw error;
         }
-        const accessToken = generateAccessToken(user.rows[0].id);
-        const refreshToken = generateRefreshToken(user.rows[0].id);
+        const accessToken = generateAccessToken(user.rows[0].id, user.rows[0].email);
+        const refreshToken = generateRefreshToken(user.rows[0].id, user.rows[0].email);
         res.status(201).json({ accessToken, refreshToken });
     }
     catch (err) {
@@ -103,7 +103,7 @@ export const refreshToken = (req, res, next) => __awaiter(void 0, void 0, void 0
             return res.status(403).json({ message: 'Invalid refresh token' });
         }
         // Refresh the access token
-        const accessToken = generateAccessToken(user.userId);
+        const accessToken = generateAccessToken(user.userId, user.email);
         res.json({ accessToken });
     });
 });

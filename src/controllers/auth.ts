@@ -47,8 +47,8 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
             }
             const insertQuery = 'INSERT INTO users (email, name, password) VALUES ($1, $2, $3) RETURNING id';
             const insertResult = await pool.query(insertQuery, [newUser.email, newUser.name, newUser.password]);
-            const accessToken = generateAccessToken(insertResult.rows[0].id);
-            const refreshToken = generateRefreshToken(insertResult.rows[0].id);
+            const accessToken = generateAccessToken(insertResult.rows[0].id, insertResult.rows[0].email);
+            const refreshToken = generateRefreshToken(insertResult.rows[0].id, insertResult.rows[0].email);
             res.status(201).json({ accessToken, refreshToken });
         }
 
@@ -83,8 +83,8 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       throw error;
 
     }
-    const accessToken = generateAccessToken(user.rows[0].id);
-    const refreshToken = generateRefreshToken(user.rows[0].id);
+    const accessToken = generateAccessToken(user.rows[0].id, user.rows[0].email);
+    const refreshToken = generateRefreshToken(user.rows[0].id, user.rows[0].email);
     res.status(201).json({ accessToken, refreshToken });
     
   }catch (err: any) {
@@ -108,7 +108,7 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
       }
   
       // Refresh the access token
-      const accessToken = generateAccessToken(user.userId);
+      const accessToken = generateAccessToken(user.userId, user.email);
       res.json({ accessToken });
     });
 }
