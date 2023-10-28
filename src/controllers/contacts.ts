@@ -75,3 +75,30 @@ export const updateContact = async (req: Request, res: Response, next: NextFunct
         next(err)
     }
 }
+
+
+export const deleteContact = async (req: Request, res: Response, next: NextFunction) => {
+    const contactId = req.params.id;
+
+    try {
+        // Get the current contact information from the database
+        const selectQuery = 'SELECT * FROM contacts WHERE id = $1';
+        const { rows } = await pool.query(selectQuery, [contactId]);
+        if (rows.length === 0) {
+            const error = new CustomError("Contact not found", 404)
+            throw error
+        }
+
+        // Delete the contact from the database and return the deleted contact
+        const deleteQuery = 'DELETE FROM contacts WHERE id = $1 RETURNING *';
+        const { rows: deletedRows } = await pool.query(deleteQuery, [contactId]);
+
+        res.status(200).json(deletedRows[0]);
+    } catch (err: any) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err)
+    }
+
+}

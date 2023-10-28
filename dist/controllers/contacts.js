@@ -78,4 +78,26 @@ export const updateContact = (req, res, next) => __awaiter(void 0, void 0, void 
         next(err);
     }
 });
+export const deleteContact = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const contactId = req.params.id;
+    try {
+        // Get the current contact information from the database
+        const selectQuery = 'SELECT * FROM contacts WHERE id = $1';
+        const { rows } = yield pool.query(selectQuery, [contactId]);
+        if (rows.length === 0) {
+            const error = new CustomError("Contact not found", 404);
+            throw error;
+        }
+        // Delete the contact from the database and return the deleted contact
+        const deleteQuery = 'DELETE FROM contacts WHERE id = $1 RETURNING *';
+        const { rows: deletedRows } = yield pool.query(deleteQuery, [contactId]);
+        res.status(200).json(deletedRows[0]);
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+});
 //# sourceMappingURL=contacts.js.map
