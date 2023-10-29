@@ -14,6 +14,7 @@ export default (req, res, next) => {
     if (!authHeader) {
         const error = new CustomError("Not authenticated", 401);
         throw error;
+        // throw error;
     }
     const token = authHeader.split(" ")[1];
     let decodedToken;
@@ -21,11 +22,11 @@ export default (req, res, next) => {
         decodedToken = jwt.verify(token, secret);
     }
     catch (err) {
-        err.statusCode = 500;
+        err.statusCode = 401;
         next(err);
     }
     if (!decodedToken) {
-        const error = new Error("Not authenticated");
+        const error = new CustomError("Not authenticated", 401);
         throw error;
     }
     req.userId = decodedToken.userId;
