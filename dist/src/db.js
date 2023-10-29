@@ -16,7 +16,7 @@ export const createTables = async () => {
     const client = await pool.connect();
     try {
         await client.query('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name TEXT, email TEXT, password TEXT)');
-        await client.query('CREATE TABLE IF NOT EXISTS contacts (id SERIAL PRIMARY KEY, first_name TEXT, last_name TEXT, phone_number TEXT)');
+        await client.query('CREATE TABLE IF NOT EXISTS contacts (id SERIAL PRIMARY KEY, first_name TEXT, last_name TEXT, phone_number TEXT,  user_id INTEGER REFERENCES users(id))');
     }
     catch (err) {
         console.error('Error creating tables:', err);
