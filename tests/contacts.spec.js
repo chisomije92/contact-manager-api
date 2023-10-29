@@ -1,10 +1,21 @@
 const request = require('supertest');
-const express = require('express');
-const { updateContact } = require('../src/controllers/contacts.js');
+const { app } = require('../src/app.js');
+const { updateContact, createContact } = require('../src/controllers/contacts.js');
 const { pool } = require('../src/db.js');
 
-const app = express();
-let server;
+
+
+let req
+
+beforeAll(() => {
+    req = {
+        body: {
+            firstName: "chisom", lastName: "ije", phoneNumber: '555-555-5555'
+        },
+    }
+    pool.query = jest.fn()
+    pool.query.mockResolvedValue({ rows: [req.body], rowsCount: 0 });
+})
 
 
 afterAll(async () => {
@@ -12,39 +23,43 @@ afterAll(async () => {
 });
 
 
-app.use(express.json());
 app.put('/contacts/:id', updateContact);
+app.post('/contacts', createContact);
 
-describe('updateContact endpoint test', () => {
-    it('should update a contact when valid data is provided', async () => {
-        const contactId = '1'; // Replace with a valid contact ID
-        const updateData = { firstName: 'Updated Name', lastName: 'updated@example.com', phoneNumber: '555-555-5555' };
 
-        // Mock database update logic here
-
+describe('PUT /contacts/:id', () => {
+    test('should update a contact when data is provided', async () => {
+        const contactId = '1';
         const response = await request(app)
             .put(`/contacts/${contactId}`)
-            .send(updateData);
+            .send(req);
 
 
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('Contact updated successfully!');
     });
 
-    it('should return a 404 error when the contact is not found', async () => {
-        const contactId = '1000'; // Replace with a non-existing contact ID
-        const updateData = {
-            updatedFirstName: 'Updated First Name',
-            updatedLastName: 'Updated Last Name',
-            updatedPhoneNumber: '555-555-5555',
-        };
+    test('should return a 404 error when the contact is not found', async () => {
+        const contactId = '1000';
+        pool.query.mockResolvedValue({ rows: [], rowsCount: 1 });
 
         const response = await request(app)
             .put(`/contacts/${contactId}`)
-            .send(updateData);
+            .send(req);
 
         expect(response.status).toBe(404);
         expect(response.body.message).toBe('Contact not found');
+    });
+
+});
+
+describe('POST /contacts', () => {
+    test('should create a contact', async () => {
+        pool.query.mockResolvedValue({ rows: [req.body] })
+        const response = await request(app).post('/contacts').send(req);
+        expect(response.status).toBe(201);
+        expect(response.body.message).toBe("Contact created successfully")
+
     });
 
 });

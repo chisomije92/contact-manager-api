@@ -17,18 +17,20 @@ export const createContact = async (req: Request, res: Response, next: NextFunct
 
         const contactExists = result.rows[0].count > 0;
         if (contactExists) {
-            const error = new CustomError("Contact exists already!", 409)
-            throw error
+            res.status(400).json({ message: "Contact already exists" });
         }
         // Insert the contact into the database and return the created contact
         const insertQuery = 'INSERT INTO contacts (first_name, last_name, phone_number) VALUES ($1, $2, $3) RETURNING *';
         const { rows } = await pool.query(insertQuery, [firstName, lastName, phoneNumber]);
-        res.status(201).json(rows[0]);
+        res.status(201).json({
+            message: "Contact created successfully", rows: rows[0]
+        });
     } catch (err: any) {
         if (!err.statusCode) {
             err.statusCode = 500;
         }
         next(err)
+        // res.status(500).json({ message: err.message });
     }
 }
 
