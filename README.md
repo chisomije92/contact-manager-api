@@ -6,13 +6,13 @@ This is an Express JS API that enables users to create, update and delete contac
 
 Before you can run this Express API locally, ensure you have the following prerequisites installed on your system:
 
-- PostgreSQL or pgAdmin: You need to have PostgreSQL installed on your system. Alternatively, you can use pgAdmin as a graphical interface for managing the database. You can download PostgreSQL [here](https://www.postgresql.org/download/) and pgAdmin at [here](https://www.pgadmin.org/download/)
+1. PostgreSQL or pgAdmin: You need to have PostgreSQL installed on your system. Alternatively, you can use pgAdmin as a graphical interface for managing the database. You can download PostgreSQL [here](https://www.postgresql.org/download/) and pgAdmin at [here](https://www.pgadmin.org/download/)
 
-- Node.js: You need to have Node.js installed. You can download Node.js from nodejs.org.
+2. Node.js: You need to have Node.js installed. You can download Node.js from nodejs.org.
 
-- npm (Node Package Manager): Make sure you have npm installed. It usually comes bundled with Node.js, so if you have Node.js, you should have npm.
+3. npm (Node Package Manager): Make sure you have npm installed. It usually comes bundled with Node.js, so if you have Node.js, you should have npm.
 
-- Environment Variables (Env file): Create a .env file in the project directory with the following variables:
+4. Environment Variables (Env file): Create a .env file in the project directory with the following variables:
 
 ```sh
 PG_HOST=your_db_host
@@ -21,7 +21,7 @@ PG_PASSWORD=your_db_password
 PG_DB=your_db_name
 PG_PORT=your_db_port
 ACCESS_SECRET=your_jwt_access_secret
-REFRESH_TOKEN=your_jwt_token_secret
+REFRESH_TOKEN=your_jwt_refresh_secret
 ```
 
 Replace your_db_host, your_db_password, your_db_name, your_db_name,your_db_port,your_jwt_access_secret with your desired values. These variables are used for configuring the database connection and handling JSON Web Tokens (JWT) for authentication.
