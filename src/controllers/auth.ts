@@ -79,7 +79,8 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     }
     const validPassword = await bcrypt.compare(password, user.rows[0].password)
     if (!validPassword) {
-      const error = new CustomError("Credentials are invalid!", 400);
+      const error = new CustomError("Credentials are invalid!", 401);
+      console.log(error)
       throw error;
 
     }
