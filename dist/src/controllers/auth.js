@@ -100,7 +100,16 @@ export const refreshToken = async (req, res, next) => {
     });
 };
 export const logout = async (req, res, next) => {
-    req.header('Authorization')?.replace('Bearer ', '');
-    res.json({ message: 'Logged out successfully' });
+    try {
+        req.header('Authorization')?.replace('Bearer ', '');
+        console.log(req.header('Authorization')?.replace('Bearer ', ''));
+        res.json({ message: 'Logged out successfully' });
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
 };
 //# sourceMappingURL=auth.js.map
