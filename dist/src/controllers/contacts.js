@@ -14,6 +14,7 @@ export const createContact = async (req, res, next) => {
         const contactExists = result.rows[0].count > 0;
         if (contactExists) {
             res.status(400).json({ message: "Contact already exists" });
+            return;
         }
         // Insert the contact into the database and return the created contact
         const insertQuery = 'INSERT INTO contacts (first_name, last_name, phone_number, user_id) VALUES ($1, $2, $3, $4) RETURNING *';
@@ -43,6 +44,7 @@ export const updateContact = async (req, res, next) => {
         const result = await pool.query(findQuery, [contactId, req.userId]);
         if (result.rows.length === 0) {
             res.status(404).json({ message: "Contact not found" });
+            return;
         }
         // Merge the updated fields with the existing contact data
         const currentContact = result.rows[0];
