@@ -43,7 +43,8 @@ export const register = async (req, res, next) => {
             const insertResult = await pool.query(insertQuery, [newUser.email, newUser.name, newUser.password]);
             const accessToken = generateAccessToken(insertResult.rows[0].id, insertResult.rows[0].email);
             const refreshToken = generateRefreshToken(insertResult.rows[0].id, insertResult.rows[0].email);
-            res.status(201).json({ accessToken, refreshToken });
+            res.cookie('refreshToken', refreshToken, { httpOnly: true });
+            res.status(201).json({ accessToken });
         }
     }
     catch (err) {
@@ -76,7 +77,11 @@ export const login = async (req, res, next) => {
         }
         const accessToken = generateAccessToken(user.rows[0].id, user.rows[0].email);
         const refreshToken = generateRefreshToken(user.rows[0].id, user.rows[0].email);
-        res.status(201).json({ accessToken, refreshToken });
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+        res.status(201).json({ accessToken });
     }
     catch (err) {
         if (!err.statusCode) {
@@ -86,7 +91,7 @@ export const login = async (req, res, next) => {
     }
 };
 export const refreshToken = async (req, res, next) => {
-    const refreshToken = req.body.refreshToken;
+    const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
         return res.status(401).json({ message: 'Refresh token is required' });
     }

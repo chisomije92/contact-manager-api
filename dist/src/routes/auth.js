@@ -11,7 +11,7 @@ router.post("/login", [
     body("email").isEmail().normalizeEmail(),
     body("password").isLength({ min: 5 }),
 ], login);
-router.post("/refresh-token", refreshToken);
+router.get("/refresh-token", refreshToken);
 router.post("/logout", logout);
 export default router;
 //# sourceMappingURL=auth.js.map

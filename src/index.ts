@@ -7,17 +7,26 @@ import authRoute from "./routes/auth.js"
 import contactRoute from "./routes/contacts.js"
 import userRoute from "./routes/users.js"
 import { app, port } from './app.js';
+import cookieParser from 'cookie-parser';
 
 
 createTables();
 
 
-app.use(cors<Request>())
+app.use(cors<Request>(
+  {
+    origin: ["http://localhost:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+
+  }
+))
 app.use(helmet({
   crossOriginEmbedderPolicy: false,
 
 }))
 app.use(morgan("common"))
+app.use(cookieParser());
 
 
 

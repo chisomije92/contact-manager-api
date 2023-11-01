@@ -6,34 +6,34 @@ import { body } from "express-validator";
 const router = express.Router();
 
 router.post(
-    "/register",
-    [
-      body("name").trim().isLength({ min: 4 }),
-      body("email").isEmail().normalizeEmail().isLength({ max: 50 }),
-      body("password").isLength({ min: 5 }),
-    ],
-    register
-  
-  );
+  "/register",
+  [
+    body("name").trim().isLength({ min: 4 }),
+    body("email").isEmail().normalizeEmail().isLength({ max: 50 }),
+    body("password").isLength({ min: 5 }),
+  ],
+  register
+
+);
 
 
-  router.post(
-    "/login",
-    [
-      body("email").isEmail().normalizeEmail(),
-      body("password").isLength({ min: 5 }),
-    ],
-    login
-  );
+router.post(
+  "/login",
+  [
+    body("email").isEmail().normalizeEmail(),
+    body("password").isLength({ min: 5 }),
+  ],
+  login
+);
 
-  router.post(
-    "/refresh-token",
-    refreshToken
-  );
+router.get(
+  "/refresh-token",
+  refreshToken
+);
 
-  router.post(
-    "/logout",
-    logout
-  );
+router.post(
+  "/logout",
+  logout
+);
 
-  export default router;
+export default router;

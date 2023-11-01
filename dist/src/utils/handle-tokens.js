@@ -15,6 +15,6 @@ export function generateAccessToken(id, email) {
     return sign({ email, userId: id }, access_secret, { expiresIn: '15m' });
 }
 export const generateRefreshToken = (id, email) => {
-    return sign({ email, userId: id }, refresh_secret, { expiresIn: '3d' });
+    return sign({ email, userId: id }, refresh_secret, { expiresIn: '7d' });
 };
 //# sourceMappingURL=handle-tokens.js.map

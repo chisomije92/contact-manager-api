@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { validationResult } from 'express-validator/src/validation-result.js';
 import { pool } from '../db.js';
 
+
 export const createContact = async (req: Request, res: Response, next: NextFunction) => {
     const { firstName, lastName, phoneNumber } = req.body
     const validationErrors = validationResult(req)
