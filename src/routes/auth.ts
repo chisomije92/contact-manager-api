@@ -1,6 +1,7 @@
 import express from "express";
-import { login, logout, refreshToken, register } from "../controllers/auth.js";
+import { login, logout, refreshToken, register, verifyUser } from "../controllers/auth.js";
 import { body } from "express-validator";
+import { updateVerificationToken } from '../controllers/auth.js';
 
 
 const router = express.Router();
@@ -30,6 +31,9 @@ router.get(
   "/refresh-token",
   refreshToken
 );
+
+router.post('/verify-user/:token', verifyUser)
+router.post('/update-token/:token', updateVerificationToken)
 
 router.post(
   "/logout",

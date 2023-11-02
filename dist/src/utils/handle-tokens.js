@@ -1,5 +1,6 @@
 import jsonwebtoken from "jsonwebtoken";
 import dotenv from 'dotenv';
+import crypto from "crypto";
 const { sign } = jsonwebtoken;
 dotenv.config();
 const { ACCESS_SECRET, REFRESH_SECRET } = process.env;
@@ -11,6 +12,15 @@ if (ACCESS_SECRET && REFRESH_SECRET) {
 else {
     throw new Error("jwt secret is not set");
 }
+export const generateRandomString = (length) => {
+    const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    let randomString = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = crypto.randomInt(0, characters.length);
+        randomString += characters.charAt(randomIndex);
+    }
+    return randomString;
+};
 export function generateAccessToken(id, email) {
     return sign({ email, userId: id }, access_secret, { expiresIn: '15m' });
 }
