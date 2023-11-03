@@ -24,7 +24,7 @@ if (ACCESS_SECRET && REFRESH_SECRET) {
 }
 
 export const generateRandomString = (length: number) => {
-  const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  const characters = '0123456789';
   let randomString = '';
 
   for (let i = 0; i < length; i++) {

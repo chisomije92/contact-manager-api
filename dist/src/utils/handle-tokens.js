@@ -13,7 +13,7 @@ else {
     throw new Error("jwt secret is not set");
 }
 export const generateRandomString = (length) => {
-    const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    const characters = '0123456789';
     let randomString = '';
     for (let i = 0; i < length; i++) {
         const randomIndex = crypto.randomInt(0, characters.length);
