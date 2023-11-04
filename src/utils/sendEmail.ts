@@ -1,25 +1,26 @@
-import { generateRandomString } from "./handle-tokens.js";
+
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import { Response } from 'express';
 
 
 dotenv.config()
 
 export const sendEmail = async (email: string, verificationToken: string) => {
-    // Send a verification email
-    const transporter = nodemailer.createTransport({
-        service: 'Gmail',
-        auth: {
-            user: process.env?.EMAIL_USERNAME,
-            pass: process.env?.EMAIL_PASSWORD,
-        },
-    });
+  // Send a verification email
+  const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: process.env?.EMAIL_USERNAME,
+      pass: process.env?.EMAIL_PASSWORD,
+    },
+  });
 
-    const mailOptions = {
-        from: "Hux Contact Manager",
-        to: email,
-        subject: 'Email Verification',
-        html: `
+  const mailOptions = {
+    from: "Hux Contact Manager",
+    to: email,
+    subject: 'Email Verification',
+    html: `
     <html>
       <body>
         <h1>Welcome to Hux Manager</h1>
@@ -28,7 +29,38 @@ export const sendEmail = async (email: string, verificationToken: string) => {
       </body>
     </html>
   `,
-    };
+  };
 
-    await transporter.sendMail(mailOptions);
+  await transporter.sendMail(mailOptions);
+
+
+}
+
+export const sendResetEmail = async (email: string, verificationToken: string) => {
+  // Send a verification email
+  const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: process.env?.EMAIL_USERNAME,
+      pass: process.env?.EMAIL_PASSWORD,
+    },
+  });
+
+  const mailOptions = {
+    from: "Hux Contact Manager",
+    to: email,
+    subject: 'Password Reset',
+    html: `
+    <html>
+      <body>
+        <h1>Welcome to Hux Manager</h1>
+        <p>To reset your password, click this link
+         <b><a href="http://localhost:3000/reset-password?email=${email}?token=${verificationToken}" target="_blank">here</a></b></p>
+       
+      </body>
+    </html>
+  `,
+  };
+
+  await transporter.sendMail(mailOptions);
 }

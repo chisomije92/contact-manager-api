@@ -23,13 +23,14 @@ if (ACCESS_SECRET && REFRESH_SECRET) {
   throw new Error("jwt secret is not set");
 }
 
-export const generateRandomString = (length: number) => {
-  const characters = '0123456789';
+export const generateRandomString = (length: number, useNumChars: boolean = true) => {
+  const numCharacters = '0123456789';
+  const allCharacters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
   let randomString = '';
 
   for (let i = 0; i < length; i++) {
-    const randomIndex = crypto.randomInt(0, characters.length);
-    randomString += characters.charAt(randomIndex);
+    const randomIndex = crypto.randomInt(0, useNumChars ? numCharacters.length : allCharacters.length);
+    randomString += useNumChars ? numCharacters.charAt(randomIndex) : allCharacters.charAt(randomIndex);
   }
 
   return randomString;

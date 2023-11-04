@@ -15,7 +15,7 @@ export const pool = new Pool(dbConfig);
 export const createTables = async () => {
     const client = await pool.connect();
     try {
-        await client.query('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name TEXT, email TEXT, password TEXT, verification_token TEXT, is_verified BOOLEAN DEFAULT false, verification_token_exp BIGINT)');
+        await client.query('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name TEXT, email TEXT, password TEXT, verification_token TEXT, is_verified BOOLEAN DEFAULT false, verification_token_exp BIGINT, forgot_password_token TEXT)');
         await client.query('CREATE TABLE IF NOT EXISTS contacts (id SERIAL PRIMARY KEY, first_name TEXT, last_name TEXT, phone_number TEXT,  user_id INTEGER REFERENCES users(id))');
     }
     catch (err) {

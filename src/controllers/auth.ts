@@ -8,7 +8,7 @@ import { pool } from '../db.js';
 import { generateAccessToken, generateRefreshToken, generateRandomString } from '../utils/handle-tokens.js';
 import crypto from "crypto";
 import nodemailer from 'nodemailer';
-import { sendEmail } from '../utils/sendEmail.js';
+import { sendEmail, sendResetEmail } from '../utils/sendEmail.js';
 
 
 const { sign, verify } = jsonwebtoken
@@ -93,11 +93,11 @@ export const verifyUser = async (req: Request, res: Response, next: NextFunction
       const error = new CustomError("Not authorized!", 401)
       throw error
     }
-    const updateQuery = 'UPDATE users SET is_verified = true, verification_token=null  WHERE verification_token = $1'
-    await pool.query(updateQuery, [verificationToken]);
+    const updateQuery = 'UPDATE users SET is_verified = $1, verification_token=$2  WHERE verification_token = $3'
+    await pool.query(updateQuery, [true, null, verificationToken]);
     const accessToken = generateAccessToken(result.rows[0].id, result.rows[0].email);
     const refreshToken = generateRefreshToken(result.rows[0].id, result.rows[0].email);
-    res.cookie('refreshToken', refreshToken, { httpOnly: true });
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
     res.status(201).json({ accessToken });
   } catch (err: any) {
     if (!err.statusCode) {
@@ -201,6 +201,80 @@ export const changePassword = async (
   }
 };
 
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  const { email } = req.body;
+  try {
+
+    const query = 'SELECT * FROM users WHERE email = $1';
+    const result = await pool.query(query, [email]);
+
+    if (result.rows.length === 0) {
+      const error = new CustomError("User not found", 404)
+      throw error
+    }
+    const passwordToken = generateRandomString(17, false);
+    await sendResetEmail(email, passwordToken)
+    const updateQuery = 'UPDATE users SET forgot_password_token = $1 WHERE email = $2'
+    await pool.query(updateQuery, [passwordToken, email]);
+    res.status(201).json("Email sent to reset password");
+  } catch (err: any) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+
+}
+
+export const finishResetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  const { password, confirmPassword } = req.body
+  const passwordToken = req.params.token
+  const validationErrors = validationResult(req);
+  if (!validationErrors.isEmpty()) {
+    const error = new CustomError(
+      "Validation failed, entered data is incorrect",
+      422,
+      validationErrors.array()
+    );
+    return res
+      .status(error.statusCode)
+      .json({ message: error.message, errors: error.errors });
+  }
+  try {
+    const query = 'SELECT * FROM users WHERE forgot_password_token = $1';
+    const result = await pool.query(query, [passwordToken]);
+    const userExists = result.rows.length > 0;
+    if (!userExists) {
+      const error = new CustomError("User not found", 404)
+      throw error
+    }
+    const salt = await bcrypt.genSalt(10);
+    const newHashedPassword = await bcrypt.hash(password, salt);
+    const isEqual = await bcrypt.compare(confirmPassword, newHashedPassword);
+    if (!isEqual || confirmPassword !== password) {
+      const error = new CustomError(
+        "Passwords do not match",
+        400
+      );
+      throw error;
+    }
+    const updateQuery = 'UPDATE users SET password=$1, forgot_password_token = $2 WHERE forgot_password_token = $3 returning *';
+    const updateResult = await pool.query(updateQuery, [newHashedPassword, null, passwordToken]);
+    const accessToken = generateAccessToken(updateResult.rows[0].id, updateResult.rows[0].email);
+    const refreshToken = generateRefreshToken(updateResult.rows[0].id, updateResult.rows[0].email);
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+    res.status(201).json({ accessToken });
+  } catch (err: any) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+}
+
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body
   const validationErrors = validationResult(req)
@@ -229,6 +303,10 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       console.log(error)
       throw error;
 
+    }
+    if (user.rows[0].validation_token) {
+      const updateQuery = 'UPDATE users SET verification_token=$1 WHERE id = $2'
+      await pool.query(updateQuery, [null, user.rows[0].id]);
     }
     const accessToken = generateAccessToken(user.rows[0].id, user.rows[0].email);
     const refreshToken = generateRefreshToken(user.rows[0].id, user.rows[0].email);
@@ -275,3 +353,5 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
   }
 
 }
+
+
