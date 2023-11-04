@@ -344,6 +344,8 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
 export const logout = async (req: Request, res: Response, next: NextFunction) => {
   try {
     req.header('Authorization')?.replace('Bearer ', '');
+    // Clear the refreshToken cookie by setting an expired date in the past
+    res.clearCookie('refreshToken');
     res.json({ message: 'Logged out successfully' });
   } catch (err: any) {
     if (!err.statusCode) {
