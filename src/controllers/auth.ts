@@ -140,6 +140,67 @@ export const updateVerificationToken = async (req: Request, res: Response, next:
   }
 }
 
+export const changePassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { oldPassword, newPassword } = req.body;
+  const userEmail = req.params.email
+  const validationErrors = validationResult(req);
+  if (!validationErrors.isEmpty()) {
+    const error = new CustomError(
+      "Validation failed, entered data is incorrect",
+      422,
+      validationErrors.array()
+    );
+    return res
+      .status(error.statusCode)
+      .json({ message: error.message, errors: error.errors });
+  }
+  try {
+    const query = 'SELECT * FROM users WHERE email = $1';
+    const result = await pool.query(query, [userEmail]);
+    const userExists = result.rows.length > 0;
+    if (!userExists) {
+      const error = new CustomError("User not found", 404)
+      throw error
+    }
+    const user = result.rows[0]
+    const salt = await bcrypt.genSalt(10);
+    const oldHashedPassword = await bcrypt.hash(oldPassword, salt);
+    const isValid = await bcrypt.compare(oldPassword, user.password);
+    // check if password is correct
+    if (!isValid) {
+      const error = new CustomError("Credentials are incorrect!", 403);
+      throw error;
+    }
+    const isEqual = await bcrypt.compare(newPassword, oldHashedPassword);
+    if (isEqual) {
+      const error = new CustomError(
+        "Old password is same as new password!",
+        403
+      );
+      throw error;
+    }
+    const newHashedPassword = await bcrypt.hash(newPassword, salt);
+    const updateQuery = 'UPDATE users SET password=$1 WHERE email = $2 returning *';
+    const updateResult = await pool.query(updateQuery, [newHashedPassword, userEmail]);
+    const userObj = {
+      id: updateResult.rows[0].id,
+      email: updateResult.rows[0].email,
+      name: updateResult.rows[0].name,
+      is_verified: updateResult.rows[0].is_verified,
+    }
+    res.status(200).json(userObj);
+  } catch (err: any) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body
   const validationErrors = validationResult(req)
