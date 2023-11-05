@@ -55,7 +55,7 @@ export const sendResetEmail = async (email: string, verificationToken: string) =
       <body>
         <h1>Welcome to Hux Manager</h1>
         <p>To reset your password, click this link
-         <b><a href="http://localhost:3000/reset-password?email=${email}?token=${verificationToken}" target="_blank">here</a></b></p>
+         <b><a href="http://localhost:3000/change-password/${verificationToken}" target="_blank">here</a></b></p>
        
       </body>
     </html>

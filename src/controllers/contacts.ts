@@ -6,6 +6,7 @@ import { pool } from '../db.js';
 
 export const createContact = async (req: Request, res: Response, next: NextFunction) => {
     const { firstName, lastName, phoneNumber } = req.body
+    console.log(req.body)
     const validationErrors = validationResult(req)
     if (!validationErrors.isEmpty()) {
         const error = new CustomError("Validation failed, entered data is incorrect", 422, validationErrors.array());

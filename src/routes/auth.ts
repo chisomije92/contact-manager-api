@@ -1,7 +1,8 @@
 import express from "express";
-import { changePassword, finishResetPassword, login, logout, refreshToken, register, resetPassword, verifyUser } from "../controllers/auth.js";
+import { changePassword, finishResetPassword, login, logout, refreshToken, register, resetPassword, validateUser, verifyUser } from "../controllers/auth.js";
 import { body } from "express-validator";
 import { updateVerificationToken } from '../controllers/auth.js';
+import isAuth from "../middlewares/is-auth.js";
 
 
 const router = express.Router();
@@ -41,11 +42,17 @@ router.post('/change-password/:email', [
 ], changePassword)
 
 router.post('/verify-user/:token', verifyUser)
-router.post('/update-token/:token', updateVerificationToken)
+router.post('/update-token/:id', updateVerificationToken)
 
 router.post(
   "/logout",
   logout
+);
+
+router.get(
+  "/validate",
+  isAuth,
+  validateUser,
 );
 
 export default router;

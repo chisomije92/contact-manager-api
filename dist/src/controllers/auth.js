@@ -45,9 +45,9 @@ export const register = async (req, res, next) => {
             const verificationTokenExp = Date.now() + 600000; // 10 mins
             // Send a verification email
             await sendEmail(email, verificationToken);
-            const insertQuery = 'INSERT INTO users (email, name, password, verification_token, verification_token_exp) VALUES ($1, $2, $3, $4, $5) RETURNING id';
-            await pool.query(insertQuery, [newUser.email, newUser.name, newUser.password, verificationToken, verificationTokenExp]);
-            res.status(201).json("User created successfully. Proceed to verify email");
+            const insertQuery = 'INSERT INTO users (email, name, password, verification_token, verification_token_exp) VALUES ($1, $2, $3, $4, $5) RETURNING *';
+            const insertResult = await pool.query(insertQuery, [newUser.email, newUser.name, newUser.password, verificationToken, verificationTokenExp]);
+            res.status(201).json({ message: "User created successfully. Proceed to verify email", tokenExpiration: insertResult.rows[0].verification_token_exp, id: insertResult.rows[0].id });
         }
     }
     catch (err) {
@@ -94,9 +94,9 @@ export const verifyUser = async (req, res, next) => {
 };
 export const updateVerificationToken = async (req, res, next) => {
     try {
-        const oldVerificationToken = req.params.token;
-        const query = 'SELECT * FROM users WHERE verification_token = $1';
-        const result = await pool.query(query, [oldVerificationToken]);
+        const userId = req.params.id;
+        const query = 'SELECT * FROM users WHERE id = $1';
+        const result = await pool.query(query, [userId]);
         const userExists = result.rows.length > 0;
         if (!userExists) {
             const error = new CustomError("User not found", 404);
@@ -108,12 +108,12 @@ export const updateVerificationToken = async (req, res, next) => {
             const newVerificationTokenExp = Date.now() + 600000; // 10 mins
             // Send a verification email
             await sendEmail(result.rows[0].email, newVerificationToken);
-            const updateQuery = 'UPDATE users SET verification_token=$1, verification_token_exp=$2  WHERE verification_token = $3 returning *';
-            const updateResult = await pool.query(updateQuery, [newVerificationToken, newVerificationTokenExp, oldVerificationToken]);
-            const accessToken = generateAccessToken(updateResult.rows[0].id, updateResult.rows[0].email);
-            const refreshToken = generateRefreshToken(updateResult.rows[0].id, updateResult.rows[0].email);
-            res.cookie('refreshToken', refreshToken, { httpOnly: true });
-            res.status(201).json({ accessToken });
+            const updateQuery = 'UPDATE users SET verification_token=$1, verification_token_exp=$2  WHERE id = $3 RETURNING *';
+            const updateResult = await pool.query(updateQuery, [newVerificationToken, newVerificationTokenExp, userId]);
+            // const accessToken = generateAccessToken(updateResult.rows[0].id, updateResult.rows[0].email);
+            // const refreshToken = generateRefreshToken(updateResult.rows[0].id, updateResult.rows[0].email);
+            // res.cookie('refreshToken', refreshToken, { httpOnly: true });
+            res.status(201).json({ message: "Verification code sent successfully", tokenExpiration: updateResult.rows[0].verification_token_exp });
         }
     }
     catch (err) {
@@ -259,7 +259,6 @@ export const login = async (req, res, next) => {
         const validPassword = await bcrypt.compare(password, user.rows[0].password);
         if (!validPassword) {
             const error = new CustomError("Credentials are invalid!", 401);
-            console.log(error);
             throw error;
         }
         if (user.rows[0].validation_token) {
@@ -294,6 +293,21 @@ export const refreshToken = async (req, res, next) => {
         const accessToken = generateAccessToken(user.userId, user.email);
         res.json({ accessToken });
     });
+};
+export const validateUser = async (req, res, next) => {
+    try {
+        if (!req.userId) {
+            const error = new CustomError("Credentials are invalid!", 401);
+            throw error;
+        }
+        res.status(200).json("User validated!");
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
 };
 export const logout = async (req, res, next) => {
     try {
