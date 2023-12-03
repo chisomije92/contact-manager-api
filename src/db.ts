@@ -1,6 +1,7 @@
 import pg from 'pg'
 import dotenv from 'dotenv';
-import pgp from "pg-promise"
+import fs from "fs"
+
 
 const { Pool } = pg;
 
@@ -11,6 +12,10 @@ const dbConfig: any = {
   database: process.env.PG_DB,
   password: process.env.PG_PASSWORD,
   port: process.env.PG_PORT,
+  ssl: {
+    rejectUnauthorized: true,
+    ca: fs.readFileSync("./ca.pem").toString(),
+  },
 };
 
 // Create a connection pool and export

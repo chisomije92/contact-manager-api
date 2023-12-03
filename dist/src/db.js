@@ -1,5 +1,6 @@
 import pg from 'pg';
 import dotenv from 'dotenv';
+import fs from "fs";
 const { Pool } = pg;
 dotenv.config();
 const dbConfig = {
@@ -8,6 +9,10 @@ const dbConfig = {
     database: process.env.PG_DB,
     password: process.env.PG_PASSWORD,
     port: process.env.PG_PORT,
+    ssl: {
+        rejectUnauthorized: true,
+        ca: fs.readFileSync("./ca.pem").toString(),
+    },
 };
 // Create a connection pool and export
 export const pool = new Pool(dbConfig);

@@ -15,7 +15,7 @@ createTables();
 
 app.use(cors<Request>(
   {
-    origin: ["http://localhost:3000"],
+    origin: ["http://localhost:3000", "https://contact-manager-two-black.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
 
