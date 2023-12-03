@@ -1,4 +1,4 @@
-# Hub Contacts API
+# Contacts Manager API
 
 This is an Express JS API that enables users to create, update and delete contacts. It also features JWT authentication.
 
