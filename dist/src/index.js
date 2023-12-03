@@ -11,6 +11,7 @@ createTables();
 app.use(cors({
     origin: ["http://localhost:3000", "https://contact-manager-two-black.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE"],
+    exposedHeaders: ["Set-Cookie"],
     credentials: true,
 }));
 app.use(helmet({

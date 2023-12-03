@@ -311,8 +311,18 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     const refreshToken = generateRefreshToken(user.rows[0].id, user.rows[0].email);
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    });
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: "lax",
+      domain: ".onrender.com"
+    })
+    // .cookie(
+    //   'refreshToken', refreshToken, {
+    //   httpOnly: true,
+    //   maxAge: 7 * 24 * 60 * 60 * 1000,
+    //   sameSite: "lax",
+    //   domain: ".onrender.com"
+    // }
+    // );
     res.status(201).json({ accessToken });
 
   } catch (err: any) {
