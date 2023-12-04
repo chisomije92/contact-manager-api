@@ -23,7 +23,7 @@ export const generateRandomString = (length, useNumChars = true) => {
     return randomString;
 };
 export function generateAccessToken(id, email) {
-    return sign({ email, userId: id }, access_secret, { expiresIn: '1m' });
+    return sign({ email, userId: id }, access_secret, { expiresIn: '15m' });
 }
 export const generateRefreshToken = (id, email) => {
     return sign({ email, userId: id }, refresh_secret, { expiresIn: '7d' });
