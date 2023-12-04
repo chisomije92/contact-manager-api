@@ -82,7 +82,24 @@ export const verifyUser = async (req, res, next) => {
         await pool.query(updateQuery, [true, null, verificationToken]);
         const accessToken = generateAccessToken(result.rows[0].id, result.rows[0].email);
         const refreshToken = generateRefreshToken(result.rows[0].id, result.rows[0].email);
-        res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            sameSite: "none",
+            secure: true,
+            domain: "*.cyclic.app"
+        })
+            .cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            sameSite: "none",
+            secure: true,
+            domain: "*.onrender.com"
+        }).cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            sameSite: "lax",
+        });
         res.status(201).json({ accessToken });
     }
     catch (err) {
@@ -226,7 +243,21 @@ export const finishResetPassword = async (req, res, next) => {
         const refreshToken = generateRefreshToken(updateResult.rows[0].id, updateResult.rows[0].email);
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            maxAge: 7 * 24 * 60 * 60 * 1000
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            sameSite: "none",
+            secure: true,
+            domain: "*.cyclic.app"
+        })
+            .cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            sameSite: "none",
+            secure: true,
+            domain: "*.onrender.com"
+        }).cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            sameSite: "lax",
         });
         res.status(201).json({ accessToken });
     }
@@ -285,7 +316,6 @@ export const login = async (req, res, next) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
             sameSite: "lax",
         });
-        ;
         res.status(201).json({ accessToken });
     }
     catch (err) {
