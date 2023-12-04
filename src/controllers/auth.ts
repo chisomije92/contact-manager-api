@@ -314,17 +314,24 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: "none",
       secure: true,
-      // domain: ".onrender.com"
       domain: "*.cyclic.app"
     })
-    // .cookie(
-    //   'refreshToken', refreshToken, {
-    //   httpOnly: true,
-    //   maxAge: 7 * 24 * 60 * 60 * 1000,
-    //   sameSite: "lax",
-    //   domain: ".onrender.com"
-    // }
-    // );
+    .cookie(
+      'refreshToken', refreshToken, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: "none",
+      secure: true,
+      domain: "*.onrender.com"
+    }
+    ).cookie(
+      'refreshToken', refreshToken, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: "lax",
+    
+    }
+    );;
     res.status(201).json({ accessToken });
 
   } catch (err: any) {
