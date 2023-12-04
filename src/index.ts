@@ -15,7 +15,7 @@ createTables();
 
 app.use(cors<Request>(
   {
-    origin: ["http://localhost:3000", "*.vercel.app"],
+    origin: ["http://localhost:3000", "https://cj-contact-manager.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE"],
      exposedHeaders: ["Set-Cookie"],
     credentials: true,

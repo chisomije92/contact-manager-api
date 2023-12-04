@@ -9,7 +9,7 @@ import { app, port } from './app.js';
 import cookieParser from 'cookie-parser';
 createTables();
 app.use(cors({
-    origin: ["http://localhost:3000", "*.vercel.app"],
+    origin: ["http://localhost:3000", "https://cj-contact-manager.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     exposedHeaders: ["Set-Cookie"],
     credentials: true,
