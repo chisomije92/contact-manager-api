@@ -272,6 +272,7 @@ export const login = async (req, res, next) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
             sameSite: "lax",
             // domain: ".onrender.com"
+            domain: ".cyclic.app"
         });
         // .cookie(
         //   'refreshToken', refreshToken, {
