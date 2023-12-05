@@ -98,6 +98,12 @@ export const verifyUser = async (req, res, next) => {
         }).cookie('refreshToken', refreshToken, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000,
+            sameSite: "none",
+            secure: true,
+            domain: "*.vercel.app"
+        }).cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
             sameSite: "lax",
         });
         res.status(201).json({ accessToken });
@@ -257,6 +263,12 @@ export const finishResetPassword = async (req, res, next) => {
         }).cookie('refreshToken', refreshToken, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000,
+            sameSite: "none",
+            secure: true,
+            domain: "*.vercel.app"
+        }).cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
             sameSite: "lax",
         });
         res.status(201).json({ accessToken });
@@ -311,6 +323,12 @@ export const login = async (req, res, next) => {
             sameSite: "none",
             secure: true,
             domain: "*.onrender.com"
+        }).cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            sameSite: "none",
+            secure: true,
+            domain: "*.vercel.app"
         }).cookie('refreshToken', refreshToken, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000,
