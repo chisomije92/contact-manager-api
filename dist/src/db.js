@@ -1,7 +1,13 @@
 import pg from 'pg';
 import dotenv from 'dotenv';
 import fs from "fs";
+import path from 'path';
 const { Pool } = pg;
+const readPemFile = () => {
+    const file = path.join(process.cwd(), 'ca.pem');
+    const stringified = fs.readFileSync(file, 'utf8');
+    return stringified;
+};
 dotenv.config();
 const dbConfig = {
     user: process.env.PG_USER,
@@ -11,7 +17,7 @@ const dbConfig = {
     port: process.env.PG_PORT,
     ssl: {
         rejectUnauthorized: true,
-        ca: fs.readFileSync("./ca.pem").toString(),
+        ca: readPemFile()
     },
 };
 // Create a connection pool and export

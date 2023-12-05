@@ -1,9 +1,15 @@
 import pg from 'pg'
 import dotenv from 'dotenv';
 import fs from "fs"
-
+import path from 'path';
 
 const { Pool } = pg;
+
+const readPemFile = () => {
+  const file = path.join(process.cwd(), 'ca.pem');
+  const stringified = fs.readFileSync(file, 'utf8');
+  return stringified
+}
 
 dotenv.config();
 const dbConfig: any = {
@@ -14,7 +20,7 @@ const dbConfig: any = {
   port: process.env.PG_PORT,
   ssl: {
     rejectUnauthorized: true,
-    ca: fs.readFileSync("./ca.pem").toString(),
+    ca: readPemFile()
   },
 };
 
@@ -23,6 +29,7 @@ export const pool = new Pool(dbConfig);
 
 // Define the tables and their creation SQL statements
 export const createTables = async () => {
+  
   const client = await pool.connect();
   try {
     await client.query('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name TEXT, email TEXT, password TEXT, verification_token TEXT, is_verified BOOLEAN DEFAULT false, verification_token_exp BIGINT, forgot_password_token TEXT)');
